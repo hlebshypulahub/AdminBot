@@ -1,6 +1,5 @@
 package by.ciao.utils;
 
-import by.ciao.bot.AdminBot;
 import by.ciao.model.User;
 import com.opencsv.CSVWriter;
 import org.apache.commons.io.FileUtils;
@@ -34,15 +33,22 @@ public class BotService {
         return restService.getUsers();
     }
 
-    private void fillWriterFromUser(List<User> users, CSVWriter csvWriter) throws IllegalAccessException {
+    private void fillWriterFromUserClass(List<User> users, CSVWriter csvWriter) throws IllegalAccessException {
         Field[] fields = User.class.getDeclaredFields();
+        String[] header = generateCsvHeader(fields);
+        csvWriter.writeNext(header);
+        fillWriterWithData(users, fields, csvWriter);
+    }
 
+    public String[] generateCsvHeader(Field[] fields) {
         String[] header = new String[fields.length];
         for (int i = 0; i < fields.length; i++) {
             header[i] = fields[i].getName();
         }
-        csvWriter.writeNext(header);
+        return header;
+    }
 
+    public void fillWriterWithData(List<User> users, Field[] fields, CSVWriter csvWriter) throws IllegalAccessException {
         for (User user : users) {
             String[] row = new String[fields.length];
             for (int i = 0; i < fields.length; i++) {
@@ -55,13 +61,15 @@ public class BotService {
     }
 
     public SendDocument generateUsersCSV() throws IOException {
-        List<User> users = getUsers();
+        return generateUsersCSV(getUsers());
+    }
 
+    public SendDocument generateUsersCSV(List<User> users) throws IOException {
         StringWriter writer = new StringWriter();
         CSVWriter csvWriter = new CSVWriter(writer);
 
         try {
-            fillWriterFromUser(users, csvWriter);
+            fillWriterFromUserClass(users, csvWriter);
         } catch (IllegalAccessException e) {
             log.error(e.getMessage(), e);
         }

@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 @Component
+@Profile("!test")
 public class AdminBot extends TelegramLongPollingBot {
 
     @Value("${bot_token}")
@@ -48,7 +50,11 @@ public class AdminBot extends TelegramLongPollingBot {
         return botToken;
     }
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRateString = "${data_sending_rate}")
+    public void callScheduledDataSending() throws IOException {
+        sendUserDataToAdmin();
+    }
+
     public void sendUserDataToAdmin() throws IOException {
         SendDocument usersCSV = botService.generateUsersCSV();
 

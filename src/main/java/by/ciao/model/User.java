@@ -11,6 +11,14 @@ public class User {
     private String numOfCorrectAnswers;
     private String testCompletionDate;
 
+    public User() {
+    }
+
+    public User(String username, String fullName) {
+        this.username = username;
+        this.fullName = fullName;
+    }
+
     @Override
     public String toString() {
         return "User{" +
